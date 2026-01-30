@@ -6,13 +6,18 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 const urlStruct = { 
   '/': responseHandler.getIndex,
   '/cats' : responseHandler.getCats,
-  index: responseHandler.getIndex
+  index: responseHandler.getIndex,
 };
 
 const onRequest = (request, response) => {
   const protocol = request.connection.encrypted ? 'https' : 'http';
   const parsedUrl = new URL(request.url, `${protocol}://${request.headers.host}`);
-  request.acceptedTypes = request.headers.accept.split(',');
+
+  request.query = Object.fromEntries(parsedUrl.searchParams);
+
+  if(request.headers.accept) {
+    request.acceptedTypes = request.headers.accept.split(',');
+  }
 
   //hold the getIndex function -- functions pointer
   // const handler = urlStruct['/'];

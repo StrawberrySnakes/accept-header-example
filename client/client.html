@@ -24,7 +24,48 @@
     }
   </style>
   <script>
+    const handleResponse = (response) => {
+      response.text().then(resText => {
+
+        if(response.status == 200) {
+          const content = document.querySelector('#content');
+          content.appendChild(document.createElement('hr'));
+
+          const h1 = document.createElement('h1');
+          const h2 = document.createElement('h2');
+          const p = document.createElement('p');
+          const rawData = document.createElement('p');
+
+          const contentType = response.headers.get('Content-Type');
+          rawData.innerText = resText;
+          hs.innerText = contentType;
+
+        if(contentType === 'application/json') {
+          const parsedObj = JSON.parse(resText);
+          h1.innerText = `Name: ${parsedObj.name}`;
+          p.innerText = `Name: ${parsedObj.age}`;
+        } else if (contentType === 'text/xml') {
+          let parsedXML = new window.DOMParser().parseFromString(resText, 'text/xml');
+          h1.innerText = `Name: ${parsedXML.querySelector('name').textContent}`;
+          p.innerText = `Age: ${parsedXML.querySelector('age').textContent}`;
+        }
+        content.appendChild(h1);
+        content.appendChild(p);
+        content.appendChild(h2);
+        content.appendChild(rawData);
+        } else {
+            const content = document.querySelector('#content');
+            content.appendChild(document.createElement('hr'));
+            content.innerHTML += `<h2>Error! ${resObj.error}</h2>`
+        }
+      });
+    }
+
     const sendFetchRequest = (url, acceptedType) => {
+      const catName = document.querySelector('#name').value;
+      url += `name=${catName}`;
+      // cats?name=Mika
+
       const options = {
         method: "GET",
         headers: {
@@ -33,11 +74,9 @@
       };
 
       const fetchPromise = fetch(url, options);
-      
       fetchPromise.then(response => {
-        console.log(response);
-      });
-
+        handleResponse(response);
+      })
     };
 
     const init = () => {
@@ -47,7 +86,7 @@
       const sendJSON = () => sendFetchRequest('/cats', 'application/json');
       jsonButton.addEventListener('click', sendJSON);
 
-      xmlButton.addEventListener('click', () => {sendFetchRequest('/cats', 'text/html')});
+      xmlButton.addEventListener('click', () => {sendFetchRequest('/cats', 'text/xml')});
 
     };
 
