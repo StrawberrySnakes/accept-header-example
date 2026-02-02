@@ -27,7 +27,7 @@ const respond = (request, response, status, content, type) => {
 };
 
 const getIndex = (request, response) => {
-  respond(request, response, index, 'text/html');
+  respond(request, response, 200, index, 'text/html');
 };
 
 const getCats = (request, response) => {
